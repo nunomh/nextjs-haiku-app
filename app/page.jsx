@@ -1,13 +1,12 @@
-import Link from 'next/link';
+import RegisterForm from "../components/RegisterForm";
 
 export default function Page() {
-    return (
-        <>
-            <h3>Hello</h3>
-            <Link href="/login">Login</Link>
-            <p>
-                Lorem  ipsum dolor sit amet, consectetur adipiscing elit. Sed sit amet nulla auctor, vestibulum magna sed
-            </p>
-        </>
-    )
+  return (
+    <>
+      <p className="text-center text-2x1 text-gray-600 mb-5">
+        Don&rsquo;t have an account? <strong>Create One</strong>
+      </p>
+      <RegisterForm />
+    </>
+  );
 }
