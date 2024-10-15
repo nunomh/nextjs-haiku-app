@@ -1,5 +1,11 @@
 "use server"
 
+import { getCollection } from "../lib/db.js"
+import bcrypt from "bcrypt"
+import { cookies } from "next/headers"
+import jwt from "jsonwebtoken"
+
+
 function isAlphaNumeric(x)
 {
     const regex = /^[a-zA-Z0-9]*$/
@@ -24,15 +30,39 @@ export const register = async function (prevState, formData)
     if (ourUser.username.length < 3) errors.username = "Username must be at least 3 characters"
     if (ourUser.username.length > 30) errors.username = "Username must be at most 30 characters"
     if (!isAlphaNumeric(ourUser.username)) errors.username = "Username can only contain letters and numbers";
+    if (ourUser.username == "") errors.username = "Username cannot be empty";
 
+    if (ourUser.password.length < 6) errors.password = "Password must be at least 6 characters"
+    if (ourUser.password.length > 50) errors.password = "Password must be at most 50 characters"
+    if (ourUser.password == "") errors.password = "Password cannot be empty";
 
     if (errors.username || errors.password)
     {
         return { errors: errors, success: false };
     }
 
+    // hash password
+    const salt = bcrypt.genSaltSync(10);
+    ourUser.password = bcrypt.hashSync(ourUser.password, salt);
+
     // storing a new user in the database
+    const usersCollection = await getCollection("users");
+    const newUser = await usersCollection.insertOne(ourUser);
+    const userId = newUser.insertedId.toString();
+
+    // create jwt value
+    const ourTokenValue = jwt.sign({ userId: userId, exp: Math.floor(Date.now() / 1000 + 60 * 60 * 24) }, process.env.JWTSECRET)
 
     // log the user in by giving them a cookie
+    cookies().set("ourhaikuapp", ourTokenValue, {
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24,
+        secure: true // only send over https if it's not a development environment
+    });
+
+    return {
+        success: true
+    }
 
 }
