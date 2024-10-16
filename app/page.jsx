@@ -1,12 +1,20 @@
 import RegisterForm from "../components/RegisterForm";
+import { getUserFromCookie } from "../lib/getUser";
 
-export default function Page() {
+export default async function Page() {
+  const user = await getUserFromCookie();
+
   return (
     <>
-      <p className="text-center text-2x1 text-gray-600 mb-5">
-        Don&rsquo;t have an account? <strong>Create One</strong>
-      </p>
-      <RegisterForm />
+      {user && <p>Welcome, you are logged in.</p>}
+      {!user && (
+        <>
+          <p className="text-center text-2xl text-gray-600 mb-5">
+            Don&rsquo;t have an account? <strong>Create One</strong>
+          </p>
+          <RegisterForm />
+        </>
+      )}
     </>
   );
 }
