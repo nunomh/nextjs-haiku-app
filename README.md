@@ -19,5 +19,6 @@ Based on youtube video: https://www.youtube.com/watch?v=iJejohAs9EY
 - components (html components to be reused)
 - app (app pages)
 - lib (reusable functions, database connection)
+- actions (controllers, handles logic)
 
 Example: page.jsx has a RegisterForm that is a component in components folder. The RegisterForm component is connected to the Register action in actions folder.

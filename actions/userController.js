@@ -85,6 +85,12 @@ export const register = async function (prevState, formData)
     if (ourUser.password.length > 50) errors.password = "Password must be at most 50 characters"
     if (ourUser.password == "") errors.password = "Password cannot be empty";
 
+    // see  if the username is already taken
+    const usersCollection = await getCollection("users");
+    const existingUser = await usersCollection.findOne({ username: ourUser.username });
+    if (existingUser) errors.username = "Username is already taken";
+
+
     if (errors.username || errors.password)
     {
         return { errors: errors, success: false };
@@ -95,7 +101,6 @@ export const register = async function (prevState, formData)
     ourUser.password = bcrypt.hashSync(ourUser.password, salt);
 
     // storing a new user in the database
-    const usersCollection = await getCollection("users");
     const newUser = await usersCollection.insertOne(ourUser);
     const userId = newUser.insertedId.toString();
 
