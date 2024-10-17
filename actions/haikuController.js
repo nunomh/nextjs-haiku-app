@@ -3,6 +3,14 @@
 import { redirect } from "next/navigation";
 import { getUserFromCookie } from "../lib/getUser"
 import { ObjectId } from "mongodb";
+import { getCollection } from "../lib/db"
+
+
+function isAlphanumericWithBasics(text)
+{
+    const regex = /^[a-zA-Z0-9 .,]*$/
+    return regex.test(text);
+}
 
 async function sharedHaikuLogic(formData, user)
 {
@@ -15,7 +23,38 @@ async function sharedHaikuLogic(formData, user)
         author: ObjectId.createFromHexString(user.userId)
     }
 
-    return { message: "Congrats" }
+    if (typeof ourHaiku.line1 != "string") ourHaiku.line1 = ""; //  Ensure line1 is a string
+    if (typeof ourHaiku.line2 != "string") ourHaiku.line2 = "";
+    if (typeof ourHaiku.line3 != "string") ourHaiku.line3 = "";
+
+    ourHaiku.line1 = ourHaiku.line1.replace(/(\r\n\n\r)/, " "); // Don't allow line breaks
+    ourHaiku.line2 = ourHaiku.line2.replace(/(\r\n\n\r)/, " ");
+    ourHaiku.line3 = ourHaiku.line3.replace(/(\r\n\n\r)/, " ");
+
+    ourHaiku.line1 = ourHaiku.line1.trim(); //  remove leading/trailing whitespace
+    ourHaiku.line2 = ourHaiku.line2.trim();
+    ourHaiku.line3 = ourHaiku.line3.trim();
+
+    if (ourHaiku.line1.length < 5) errors.line1 = "Line 1 must be at least 5 characters long";
+    if (ourHaiku.line2.length < 5) errors.line2 = "Line 2 must be at least 5 characters long";
+    if (ourHaiku.line3.length < 5) errors.line3 = "Line 3 must be at least 5 characters long";
+
+    if (ourHaiku.line1.length > 25) errors.line1 = "Line 1 must be at most 25 characters long";
+    if (ourHaiku.line2.length > 25) errors.line1 = "Line 2 must be at most 25 characters long";
+    if (ourHaiku.line3.length > 25) errors.line1 = "Line 3 must be at most 25 characters long";
+
+    if (!isAlphanumericWithBasics(ourHaiku.line1)) errors.line1 = "Line 1 must contain only alphanumeric characters and basic punctuation";
+    if (!isAlphanumericWithBasics(ourHaiku.line2)) errors.line2 = "Line 2 must contain only alphanumeric characters and basic punctuation";
+    if (!isAlphanumericWithBasics(ourHaiku.line3)) errors.line3 = "Line 3 must contain only alphanumeric characters and basic punctuation";
+
+    if (ourHaiku.line1.length == 0) errors.line1 = "Line 1 cannot be empty";
+    if (ourHaiku.line2.length == 0) errors.line2 = "Line 2 cannot be empty";
+    if (ourHaiku.line3.length == 0) errors.line3 = "Line 3 cannot be empty";
+
+    return {
+        errors,
+        ourHaiku
+    }
 }
 
 export const createHaiku = async function (prevState, formData)
@@ -29,4 +68,13 @@ export const createHaiku = async function (prevState, formData)
 
     const results = await sharedHaikuLogic(formData, user);
 
+    if (results.errors.line1 || results.errors.line2 || results.errors.line3)
+    {
+        return { errors: results.errors }
+    }
+
+    // save into db
+    const haikusCollection = await getCollection("haikus");
+    const newHaiku = await haikusCollection.insertOne(results.ourHaiku);
+    return redirect("/");
 }
