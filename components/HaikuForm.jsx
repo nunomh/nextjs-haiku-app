@@ -1,10 +1,18 @@
 "use client";
 
 import { useFormState } from "react-dom";
-import { createHaiku } from "../actions/haikuController";
+import { createHaiku, editHaiku } from "../actions/haikuController";
 
-export default function HaikuForm() {
-  const [formState, formAction] = useFormState(createHaiku, {}); // get the current state and status of the form
+export default function HaikuForm(props) {
+  let actualAction;
+  if (props.action === "create") {
+    actualAction = createHaiku;
+  }
+  if (props.action === "edit") {
+    actualAction = editHaiku;
+  }
+
+  const [formState, formAction] = useFormState(actualAction, {}); // get the current state and status of the form
   console.log(formState);
 
   return (
@@ -19,6 +27,7 @@ export default function HaikuForm() {
             type="text"
             placeholder="line #1"
             className="input input-bordered w-full max-w-xs"
+            defaultValue={props.haiku?.line1}
           />
           {formState.errors?.line1 && (
             <div role="alert" className="alert alert-warning">
@@ -46,6 +55,7 @@ export default function HaikuForm() {
             type="text"
             placeholder="line #2"
             className="input input-bordered w-full max-w-xs"
+            defaultValue={props.haiku?.line2}
           />
           {formState.errors?.line2 && (
             <div role="alert" className="alert alert-warning">
@@ -73,6 +83,7 @@ export default function HaikuForm() {
             type="text"
             placeholder="line #3"
             className="input input-bordered w-full max-w-xs"
+            defaultValue={props.haiku?.line3}
           />
           {formState.errors?.line3 && (
             <div role="alert" className="alert alert-warning">
@@ -93,7 +104,12 @@ export default function HaikuForm() {
             </div>
           )}
         </div>
-        <button className="btn btn-primary">Create Haiku</button>
+        <input
+          type="hidden"
+          name="haikuId"
+          defaultValue={props.haiku?._id.toString()}
+        />
+        <button className="btn btn-primary">Submit</button>
       </form>
     </>
   );
