@@ -12,6 +12,7 @@ Based on the youtube video: https://www.youtube.com/watch?v=iJejohAs9EY
 - MongoDB
 - bcrypt - for password hashing
 - jsonwebtoken
+- cloudinary - api for image ai resizing
 
 ## Project Structure
 
@@ -25,5 +26,8 @@ Example: page.jsx has a RegisterForm that is a component in components folder. T
 
 ## .env
 
-CONNECTIONSTRING=  
-JWTSECRET=
+CONNECTIONSTRING="Mongodb connection string"
+JWTSECRET="Random jwt secret"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="Your Cloud Name"
+NEXT_PUBLIC_CLOUDINARY_API_KEY="Your API Key"
+CLOUDINARY_API_SECRET="Your API Secret"

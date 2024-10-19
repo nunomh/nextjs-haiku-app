@@ -2,6 +2,7 @@
 
 import { useFormState } from "react-dom";
 import { createHaiku, editHaiku } from "../actions/haikuController";
+import { CldUploadWidget } from "next-cloudinary";
 
 export default function HaikuForm(props) {
   let actualAction;
@@ -103,6 +104,17 @@ export default function HaikuForm(props) {
               <span>{formState.errors?.line3}</span>
             </div>
           )}
+        </div>
+        <div className="mb-4">
+          <CldUploadWidget signatureEndpoint="/widget-signature">
+            {({ open }) => {
+              return (
+                <button className="btn btn-secondary" onClick={() => open()}>
+                  Upload an Image
+                </button>
+              );
+            }}
+          </CldUploadWidget>
         </div>
         <input
           type="hidden"
