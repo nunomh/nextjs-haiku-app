@@ -4,7 +4,13 @@ import { redirect } from "next/navigation";
 import { getUserFromCookie } from "../lib/getUser"
 import { ObjectId } from "mongodb";
 import { getCollection } from "../lib/db"
+import cloudinary from 'cloudinary'
 
+const cloudinaryConfig = cloudinary.config({
+    cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 function isAlphanumericWithBasics(text)
 {
@@ -14,6 +20,10 @@ function isAlphanumericWithBasics(text)
 
 async function sharedHaikuLogic(formData, user)
 {
+    console.log(formData.get("signature"))
+    console.log(formData.get("public_id"))
+    console.log(formData.get("version"))
+
     const errors = {}
 
     const ourHaiku = {
@@ -50,6 +60,17 @@ async function sharedHaikuLogic(formData, user)
     if (ourHaiku.line1.length == 0) errors.line1 = "Line 1 cannot be empty";
     if (ourHaiku.line2.length == 0) errors.line2 = "Line 2 cannot be empty";
     if (ourHaiku.line3.length == 0) errors.line3 = "Line 3 cannot be empty";
+
+    // verify signature
+    const expectedSignature = cloudinary.utils.api_sign_request({
+        public_id: formData.get("public_id"),
+        version: formData.get("version")
+    }, cloudinaryConfig.api_secret);
+
+    if (expectedSignature === formData.get("signature"))
+    {
+        ourHaiku.photo = formData.get("public_id");
+    }
 
     return {
         errors,

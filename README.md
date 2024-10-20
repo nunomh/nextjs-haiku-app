@@ -31,3 +31,8 @@ JWTSECRET="Random jwt secret"
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="Your Cloud Name"
 NEXT_PUBLIC_CLOUDINARY_API_KEY="Your API Key"
 CLOUDINARY_API_SECRET="Your API Secret"
+
+## Installation and running
+
+Install: `npm install`  
+Run: `npm run dev`
