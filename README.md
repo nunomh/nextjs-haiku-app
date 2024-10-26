@@ -36,3 +36,7 @@ CLOUDINARY_API_SECRET="Your API Secret"
 
 Install: `npm install`  
 Run: `npm run dev`
+
+## Notes
+
+Next.js Project creation: `npx create-react-app@latest project-name`
